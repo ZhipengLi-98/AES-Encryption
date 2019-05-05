@@ -5,9 +5,9 @@ class AES:
     def __init__(self, key, rounds):
         self.key = hex2mat(key)
         self.rounds = rounds
-        self.extend_key(self.key)
+        self.extend_key()
 
-    def extend_key(self, key):
+    def extend_key(self):
         for i in range(4, 4 * (1 + self.rounds)):
             self.key.append([])
             if i % 4 == 0:
@@ -40,10 +40,10 @@ class AES:
         for i in range(4):
             temp = state[i][0] ^ state[i][1] ^ state[i][2] ^ state[i][3]
             backup = state[i][0]
-            state[i][0] = temp ^ mult(state[i][0] ^ state[i][1])
-            state[i][1] = temp ^ mult(state[i][1] ^ state[i][2])
-            state[i][2] = temp ^ mult(state[i][2] ^ state[i][3])
-            state[i][3] = temp ^ mult(state[i][3] ^ backup)
+            state[i][0] ^= temp ^ mult(state[i][0] ^ state[i][1])
+            state[i][1] ^= temp ^ mult(state[i][1] ^ state[i][2])
+            state[i][2] ^= temp ^ mult(state[i][2] ^ state[i][3])
+            state[i][3] ^= temp ^ mult(state[i][3] ^ backup)
 
     def encrypt(self, msg):
         state = hex2mat(msg)
