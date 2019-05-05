@@ -28,8 +28,22 @@ class AES:
 
     def sub_bytes(self, state):
         for i in range(4):
-            for i in range(4):
-                state[i][j] = s_box[s[i][j]]
+            for j in range(4):
+                state[i][j] = s_box[state[i][j]]
+
+    def shift_rows(self, state):
+        state[0][1], state[1][1], state[2][1], state[3][1] = state[1][1], state[2][1], state[3][1], state[0][1]
+        state[0][2], state[1][2], state[2][2], state[3][2] = state[2][2], state[3][2], state[0][2], state[1][2]
+        state[0][3], state[1][3], state[2][3], state[3][3] = state[3][3], state[0][3], state[1][3], state[2][3]
+
+    def mix_cols(self, state):
+        for i in range(4):
+            temp = state[i][0] ^ state[i][1] ^ state[i][2] ^ state[i][3]
+            backup = state[i][0]
+            state[i][0] = temp ^ mult(state[i][0] ^ state[i][1])
+            state[i][1] = temp ^ mult(state[i][1] ^ state[i][2])
+            state[i][2] = temp ^ mult(state[i][2] ^ state[i][3])
+            state[i][3] = temp ^ mult(state[i][3] ^ backup)
 
     def encrypt(self, msg):
         state = hex2mat(msg)
@@ -39,3 +53,7 @@ class AES:
             self.shift_rows(state)
             self.mix_cols(state)
             self.round_add(state, self.key[4 * i: 4 * (i + 1)])
+        self.sub_bytes(state)
+        self.shift_rows(state)
+        self.round_add(state, self.key[4 * self.rounds: ])
+        return mat2hex(state)

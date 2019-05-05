@@ -44,6 +44,13 @@ r_con = (
 )
 
 
+def mult(num):
+    if num & 0x80:
+        return ((num << 1) ^ 0x1B) & 0xFF
+    else:
+        return num << 1
+
+
 def hex2mat(num):
     mat = []
     for i in range(16):
@@ -53,3 +60,11 @@ def hex2mat(num):
         else:
             mat[int(i / 4)].append(cur)
     return mat
+
+
+def mat2hex(mat):
+    hex = 0
+    for i in range(4):
+        for j in range(4):
+            hex |= (mat[i][j] << (120 - 8 * (4 * i + j)))
+    return hex
