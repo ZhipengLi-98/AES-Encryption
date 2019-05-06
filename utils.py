@@ -51,7 +51,7 @@ def mult(num):
         return num << 1
 
 
-def hex2mat(num):
+def hex2mat128(num):
     mat = []
     for i in range(16):
         cur = (num >> (8 * (15 - i))) & 0xFF
@@ -62,7 +62,22 @@ def hex2mat(num):
     return mat
 
 
-def mat2hex(mat):
+def hex2mat192(num):
+    mat = []
+    for i in range(24):
+        cur = (num >> (8 * (23 - i))) & 0xFF
+        if i % 4 == 0:
+            mat.append([cur])
+        else:
+            mat[int(i / 4)].append(cur)
+    return mat
+
+
+def hex2mat256(num):
+    return []
+
+
+def mat2hex128(mat):
     hex = 0
     for i in range(4):
         for j in range(4):
