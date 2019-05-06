@@ -44,7 +44,23 @@ class AES:
                     self.key[i].append(temp)
 
     def extend_key256(self):
-        print("extend_key256")
+        print("extend_key256", self.key)
+        for i in range(8, 4 * (1 + self.rounds)):
+            self.key.append([])
+            if i % 8 == 0:
+                temp = self.key[i - 8][0] ^ s_box[self.key[i - 1][1]] ^ r_con[int(i / 8)]
+                self.key[i].append(temp)
+                for j in range(1, 4):
+                    temp = self.key[i - 8][j] ^ s_box[self.key[i - 1][(j + 1) % 4]]
+                    self.key[i].append(temp)
+            elif i % 8 == 4:
+                for j in range(4):
+                    temp = self.key[i - 8][j] ^ s_box[self.key[i - 1][j]]
+                    self.key[i].append(temp)
+            else:
+                for j in range(4):
+                    temp = self.key[i - 8][j] ^ self.key[i - 1][j]
+                    self.key[i].append(temp)
 
     def round_add(self, state, keys):
         for i in range(4):

@@ -74,7 +74,14 @@ def hex2mat192(num):
 
 
 def hex2mat256(num):
-    return []
+    mat = []
+    for i in range(32):
+        cur = (num >> (8 * (31 - i))) & 0xFF
+        if i % 4 == 0:
+            mat.append([cur])
+        else:
+            mat[int(i / 4)].append(cur)
+    return mat
 
 
 def mat2hex128(mat):
