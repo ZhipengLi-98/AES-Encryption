@@ -35,7 +35,7 @@ def generate(num):
 if __name__ == "__main__":
     ans = []
     num = 10 * (1 << 23)
-    for i in range(10):
+    for i in range(5):
         ans.append(generate(num))
         print(i)
     with open("10.txt", "w") as f:
