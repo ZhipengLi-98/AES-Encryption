@@ -90,3 +90,19 @@ def mat2hex128(mat):
         for j in range(4):
             hex |= (mat[i][j] << (120 - 8 * (4 * i + j)))
     return hex
+
+
+def handle128(msg):
+    msgs = []
+    length = len(str(hex(msg))) - 2
+    while length > 0:
+        if length > 31:
+            temp = msg >> 4 * (length - 32)
+            length -= 32
+            msg &= (1 << (4 * (length))) - 1
+            msgs.append(temp)
+        else:
+            temp = msg << (128 - 4 * length)
+            msgs.append(temp)
+            length = 0
+    return msgs

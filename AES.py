@@ -5,6 +5,7 @@ class AES:
     def __init__(self, key, rounds, bits):
         self.rounds = rounds
         self.bits = bits
+        self.iv = 0x0000000000000000
         if bits == 128:
             self.key = hex2mat128(key)
             self.extend_key128()
@@ -44,7 +45,6 @@ class AES:
                     self.key[i].append(temp)
 
     def extend_key256(self):
-        print("extend_key256", self.key)
         for i in range(8, 4 * (1 + self.rounds)):
             self.key.append([])
             if i % 8 == 0:
@@ -107,27 +107,38 @@ class AES:
         self.mix_cols(state)
 
     def encrypt(self, msg):
-        state = hex2mat128(msg)
-        self.round_add(state, self.key[0: 4])
-        for i in range(1, self.rounds):
+        msgs = handle128(msg)
+        ans = []
+        for m in msgs:
+            m ^= self.iv
+            state = hex2mat128(m)
+            self.round_add(state, self.key[0: 4])
+            for i in range(1, self.rounds):
+                self.sub_bytes(state)
+                self.shift_rows(state)
+                self.mix_cols(state)
+                self.round_add(state, self.key[4 * i: 4 * (i + 1)])
             self.sub_bytes(state)
             self.shift_rows(state)
-            self.mix_cols(state)
-            self.round_add(state, self.key[4 * i: 4 * (i + 1)])
-        self.sub_bytes(state)
-        self.shift_rows(state)
-        self.round_add(state, self.key[4 * self.rounds: ])
-        return mat2hex128(state)
+            self.round_add(state, self.key[4 * self.rounds: ])
+            self.iv = mat2hex128(state)
+            ans.append(self.iv)
+        return ans
 
     def decrypt(self, msg):
-        state = hex2mat128(msg)
-        self.round_add(state, self.key[4 * self.rounds: ])
-        for i in range(self.rounds - 1, 0, -1):
+        msgs = handle128(msg)
+        ans = []
+        for m in msgs:
+            state = hex2mat128(m)
+            self.round_add(state, self.key[4 * self.rounds: ])
+            for i in range(self.rounds - 1, 0, -1):
+                self.rev_shift_rows(state)
+                self.rev_sub_bytes(state)
+                self.round_add(state, self.key[4 * i: 4 * (i + 1)])
+                self.rev_mix_cols(state)
             self.rev_shift_rows(state)
             self.rev_sub_bytes(state)
-            self.round_add(state, self.key[4 * i: 4 * (i + 1)])
-            self.rev_mix_cols(state)
-        self.rev_shift_rows(state)
-        self.rev_sub_bytes(state)
-        self.round_add(state, self.key[ :4])
-        return mat2hex128(state)
+            self.round_add(state, self.key[ :4])
+            ans.append(mat2hex128(state) ^ self.iv)
+            self.iv = m
+        return ans
