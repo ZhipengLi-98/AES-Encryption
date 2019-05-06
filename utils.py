@@ -92,17 +92,26 @@ def mat2hex128(mat):
     return hex
 
 
-def handle128(msg):
-    msgs = []
-    length = len(str(hex(msg))) - 2
-    while length > 0:
-        if length > 31:
-            temp = msg >> 4 * (length - 32)
-            length -= 32
-            msg &= (1 << (4 * (length))) - 1
-            msgs.append(temp)
+def str2hex(s):
+    ans = 0
+    pow = 1
+    for i in range(len(s) - 1, -1, -1):
+        if ord(s[i]) <= ord("9"):
+            ans += (ord(s[i]) - ord("0")) * pow
         else:
-            temp = msg << (128 - 4 * length)
-            msgs.append(temp)
-            length = 0
+            ans += (ord(s[i]) - ord("a") + 10) * pow
+        pow *= 16
+    return ans
+
+
+def handle128(msg):
+    while len(msg) % 32 != 0:
+        msg += "0"
+    msgs = []
+    length = len(msg)
+    tail = 0
+    while tail < length:
+        temp = str2hex(msg[tail: tail + 32])
+        tail += 32
+        msgs.append(temp)
     return msgs
