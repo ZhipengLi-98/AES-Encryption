@@ -92,7 +92,7 @@ def mat2hex128(mat):
     return hex
 
 
-def str2hex(s):
+def str2ord(s):
     ans = 0
     pow = 1
     for i in range(len(s) - 1, -1, -1):
@@ -111,7 +111,7 @@ def handle128(msg):
     length = len(msg)
     tail = 0
     while tail < length:
-        temp = str2hex(msg[tail: tail + 32])
+        temp = str2ord(msg[tail: tail + 32])
         tail += 32
         msgs.append(temp)
     return msgs
